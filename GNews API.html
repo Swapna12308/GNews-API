@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News Search (GNews API)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef2f7;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .search-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .news-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .news-card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    .news-card:hover {
+      transform: translateY(-5px);
+    }
+    .news-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .news-card h3 {
+      margin: 10px 0 5px;
+      font-size: 1.1em;
+    }
+    .news-card p {
+      font-size: 0.9em;
+      color: #555;
+    }
+    .news-card a {
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📰 GNews Article Search</h1>
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Enter topic (e.g., technology, sports)" />
+    <button onclick="searchNews()">Search</button>
+  </div>
+
+  <div class="news-container" id="news-container"></div>
+
+  <script>
+    const API_KEY = "88b551427b0613a28b4250ff88cbf5df"; 
+
+    async function searchNews() {
+      const query = document.getElementById("search-input").value.trim();
+      const container = document.getElementById("news-container");
+      container.innerHTML = "";
+
+      if (!query) {
+        alert("Please enter a search term.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=10&apikey=${API_KEY}`);
+        const data = await res.json();
+
+        if (!data.articles || data.articles.length === 0) {
+          container.innerHTML = `<p style="text-align:center; color:red;">No articles found.</p>`;
+          return;
+        }
+
+        data.articles.forEach(article => {
+          const card = document.createElement("div");
+          card.className = "news-card";
+          card.innerHTML = `
+            <img src="${article.image || 'https://via.placeholder.com/300x180'}" alt="News Image">
+            <h3>${article.title}</h3>
+            <p>${article.description || "No description available."}</p>
+            <a href="${article.url}" target="_blank">Read More</a>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p style="text-align:center; color:red;">Error fetching news articles.</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
